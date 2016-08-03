@@ -27,29 +27,29 @@ module fmc2bram_tb;
   // End of automatics
 
   fmc2bram
-  #(/*AUTOINSTPARAM*/
-    // Parameters
-    .FMC_AW				(FMC_AW),
-    .BRAM_AW				(BRAM_AW),
-    .DW					(DW),
-    .BRAMS				(BRAMS))
+    #(/*AUTOINSTPARAM*/
+      // Parameters
+      .FMC_AW				(FMC_AW),
+      .BRAM_AW				(BRAM_AW),
+      .DW				(DW),
+      .BRAMS				(BRAMS))
   uut
-  (/*AUTOINST*/
-   // Outputs
-   .bram_a				(bram_a[BRAM_AW-1:0]),
-   .bram_do				(bram_do[DW-1:0]),
-   .bram_en				(bram_en[BRAMS-1:0]),
-   .bram_we				(bram_we[0:0]),
-   // Inouts
-   .fmc_d				(fmc_d[DW-1:0]),
-   // Inputs
-   .rst					(rst),
-   .fmc_clk				(fmc_clk),
-   .fmc_a				(fmc_a[FMC_AW-1:0]),
-   .fmc_noe				(fmc_noe),
-   .fmc_nwe				(fmc_nwe),
-   .fmc_ne				(fmc_ne),
-   .bram_di				(bram_di[BRAMS*DW-1:0]));
+    (/*AUTOINST*/
+     // Outputs
+     .bram_a				(bram_a[BRAM_AW-1:0]),
+     .bram_do				(bram_do[DW-1:0]),
+     .bram_en				(bram_en[BRAMS-1:0]),
+     .bram_we				(bram_we[0:0]),
+     // Inouts
+     .fmc_d				(fmc_d[DW-1:0]),
+     // Inputs
+     .rst				(rst),
+     .fmc_clk				(fmc_clk),
+     .fmc_a				(fmc_a[FMC_AW-1:0]),
+     .fmc_noe				(fmc_noe),
+     .fmc_nwe				(fmc_nwe),
+     .fmc_ne				(fmc_ne),
+     .bram_di				(bram_di[BRAMS*DW-1:0]));
 
   
   // Data
@@ -58,7 +58,7 @@ class TxType;
   rand bit [$clog2(BRAMS)-1:0] bram_idx;
   rand bit [BRAM_AW-1:0] addr;
   rand bit [DW-1:0] data;
-  int len;
+  int 			len;
 
   function new(input int l);
     len = l;
@@ -67,6 +67,7 @@ endclass // TxType
 
   bit [DW-1:0] 		bram_array [BRAMS][bit [BRAM_AW-1:0]];
 
+  logic [DW-1:0] 	fmc_d_int;
 
   
   // Tasks
@@ -79,12 +80,14 @@ endclass // TxType
     fmc_nwe = 1;  
   endfunction // init
 
+  
   task reset();
     @(negedge fmc_clk) rst = 1;
     @(negedge fmc_clk) rst = 0;
     rst_check: assert (bram_en == 0 && bram_we == 0);
   endtask
-  
+ 
+ 
   task tx_read(input TxType tx);
     @(negedge fmc_clk);
     fmc_ne = 0;
@@ -105,7 +108,23 @@ endclass // TxType
     fmc_noe = 1;
   endtask // tx_read
 
+  
   task tx_write(input TxType tx);
+    @(negedge fmc_clk);
+    fmc_ne = 0;
+    fmc_nwe = 0;
+    fmc_a = {tx.bram_idx, tx.addr};
+    
+    repeat(2) @(negedge fmc_clk);
+    for (int i=0; i<tx.len; i++) begin
+      @(negedge fmc_clk);
+      fmc_d_int = tx.data+i;
+      $display("WRITE: A:%d,%h D:%h", tx.bram_idx, tx.addr+i, tx.data+i);
+    end
+
+    @(posedge fmc_clk);
+    fmc_ne = 1;
+    fmc_nwe = 1;
   endtask // tx_write
 
   
@@ -121,7 +140,9 @@ endclass // TxType
 	  bram_array[i][bram_a] = bram_do;
 	else
 	  bram_di[DW*(i+1)-1 -: DW] = bram_array[i][bram_a];
-   
+
+  assign fmc_d = (!fmc_ne && !fmc_nwe) ? fmc_d_int : 'bz;
+  
 
   
   // Main
@@ -137,6 +158,8 @@ endclass // TxType
     init();
     reset();
     tx.randomize();
+    tx_write(tx);
+    repeat(4) @(posedge fmc_clk);
     tx_read(tx);
     
     #10 $finish;
