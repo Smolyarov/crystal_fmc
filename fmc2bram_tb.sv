@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 
 module fmc2bram_tb;
 
@@ -51,12 +51,25 @@ module fmc2bram_tb;
    .fmc_ne				(fmc_ne),
    .bram_di				(bram_di[BRAMS*DW-1:0]));
 
+  
+  // Data
+  
 class TxType;
   rand bit [$clog2(BRAMS)-1:0] bram_idx;
   rand bit [BRAM_AW-1:0] addr;
   rand bit [DW-1:0] data;
-  rand bit [3:0] len;
-endclass
+  int len;
+
+  function new(input int l);
+    len = l;
+  endfunction
+endclass // TxType
+
+  bit [DW-1:0] 		bram_array [BRAMS][bit [BRAM_AW-1:0]];
+
+
+  
+  // Tasks
   
   function void init();
     rst = 0;
@@ -67,31 +80,67 @@ endclass
   endfunction // init
 
   task reset();
-    rst = 1;
-    @(posedge fmc_clk);
-    rst = 0;
+    @(negedge fmc_clk) rst = 1;
+    @(negedge fmc_clk) rst = 0;
+    rst_check: assert (bram_en == 0 && bram_we == 0);
   endtask
   
-  task tx_read(TxType tx);
+  task tx_read(input TxType tx);
     @(negedge fmc_clk);
     fmc_ne = 0;
     fmc_a = {tx.bram_idx, tx.addr};
+    
     repeat(2) @(negedge fmc_clk);
     fmc_noe = 0;
-    repeat(2) @(posedge fmc_clk);
-    read_check: assert (fmc_d == bram_array[tx.bram_idx][tx.addr]);
+    
+    @(posedge fmc_clk);
+    for (int i=0; i<tx.len; i++) begin
+      @(posedge fmc_clk);
+      $display("READ: A:%d,%h D:%h", tx.bram_idx, tx.addr+i, fmc_d);
+      read_check: assert (fmc_d == bram_array[tx.bram_idx][tx.addr+i]);
+    end
+    
+    @(posedge fmc_clk);
+    fmc_ne = 1;
+    fmc_noe = 1;
   endtask // tx_read
 
-  task tx_write(TxType tx);
-  endtask
-  
-  bit [DW-1:0] 		bram_array [BRAMS][bit [BRAM_AW-1:0]];
+  task tx_write(input TxType tx);
+  endtask // tx_write
 
-  initial begin
-    init();
-    reset();
-  end
+  
+  
+  // Env model
 
   always #5 fmc_clk = ~fmc_clk;
+
+  always @(posedge fmc_clk) // bram model
+    foreach (bram_en[i])
+      if (bram_en[i])
+	if (bram_we)
+	  bram_array[i][bram_a] = bram_do;
+	else
+	  bram_di[DW*(i+1)-1 -: DW] = bram_array[i][bram_a];
+   
+
+  
+  // Main
+  
+  initial begin
+    TxType tx;
+    
+    $dumpfile("dump.vcd");
+    $dumpvars;
+    
+    tx = new(4);
+    
+    init();
+    reset();
+    tx.randomize();
+    tx_read(tx);
+    
+    #10 $finish;
+  end // initial begin
+
   
 endmodule
