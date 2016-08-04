@@ -29,7 +29,7 @@ module fmc2bram
   reg [BRAM_AW-1:0] 	  a_cnt;
   wire [$clog2(BRAMS)-1:0] bram_idx;
 
-  assign bram_idx = fmc_a[$clog2(BRAMS)+BRAM_AW-1 : BRAM_AW];
+  assign bram_idx = fmc_a[FMC_AW-1 : FMC_AW-$clog2(BRAMS)];
   assign fmc_d = (!fmc_ne && !fmc_noe) ? bram_di[DW*(bram_idx+1)-1 -: DW] : 'bz;
   assign bram_a = a_cnt;
   assign bram_do = fmc_d;
