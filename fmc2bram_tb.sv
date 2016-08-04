@@ -57,8 +57,10 @@ module fmc2bram_tb;
 class TxType;
   rand bit [$clog2(BRAMS)-1:0] bram_idx;
   rand bit [BRAM_AW-1:0] addr;
-  rand bit [DW-1:0] data;
   int 			len;
+  rand bit [DW-1:0] data[];
+
+  constraint data_size {data.size() == len;}
 
   function new(input int l);
     len = l;
@@ -118,8 +120,8 @@ endclass // TxType
     repeat(2) @(negedge fmc_clk);
     for (int i=0; i<tx.len; i++) begin
       @(negedge fmc_clk);
-      fmc_d_int = tx.data+i;
-      $display("WRITE: A:%d,%h D:%h", tx.bram_idx, tx.addr+i, tx.data+i);
+      fmc_d_int = tx.data[i];
+      $display("WRITE: A:%d,%h D:%h", tx.bram_idx, tx.addr+i, tx.data[i]);
     end
 
     @(posedge fmc_clk);
@@ -153,14 +155,17 @@ endclass // TxType
     $dumpfile("dump.vcd");
     $dumpvars;
     
-    tx = new(4);
+    tx = new(16);
     
     init();
     reset();
-    tx.randomize();
-    tx_write(tx);
-    repeat(4) @(posedge fmc_clk);
-    tx_read(tx);
+    
+    repeat(10) begin
+      tx.randomize();
+      tx_write(tx);
+      repeat(2) @(posedge fmc_clk);
+      tx_read(tx);
+    end
     
     #10 $finish;
   end // initial begin
