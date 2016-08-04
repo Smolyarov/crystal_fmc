@@ -1,0 +1,127 @@
+
+# LOCs
+
+net "fmc_clk" loc = h17;
+net "fmc_d[23]" loc = k12;
+net "fmc_d[6]" loc = d17;
+net "fmc_d[13]" loc = f14;
+net "fmc_d[30]" loc = l16;
+net "fmc_d[25]" loc = g14;
+net "fmc_d[18]" loc = k13;
+net "fmc_d[15]" loc = l13;
+net "fmc_d[2]" loc = k16;
+net "fmc_d[27]" loc = h12;
+net "fmc_d[26]" loc = k15;
+net "fmc_d[4]" loc = k14;
+net "fmc_d[5]" loc = e18;
+net "fmc_d[16]" loc = g18;
+net "fmc_d[10]" loc = f15;
+net "fmc_d[19]" loc = h16;
+net "fmc_d[28]" loc = h14;
+net "fmc_d[29]" loc = f16;
+net "fmc_d[8]" loc = j13;
+net "fmc_d[3]" loc = e16;
+net "fmc_d[24]" loc = c17;
+net "fmc_d[0]" loc = h15;
+net "fmc_d[22]" loc = g13;
+net "fmc_d[21]" loc = h18;
+net "fmc_d[7]" loc = j16;
+net "fmc_d[14]" loc = h13;
+net "fmc_d[17]" loc = g16;
+net "fmc_d[31]" loc = f18;
+net "fmc_d[9]" loc = l15;
+net "fmc_d[11]" loc = l12;
+net "fmc_d[1]" loc = f17;
+net "fmc_d[20]" loc = d18;
+net "fmc_d[12]" loc = c18;
+net "fmc_a[0]" loc = l18;
+net "fmc_a[3]" loc = m14;
+net "fmc_a[19]" loc = t18;
+net "fmc_a[7]" loc = p18;
+net "fmc_a[14]" loc = p17;
+net "fmc_a[15]" loc = n16;
+net "fmc_a[5]" loc = j18;
+net "fmc_a[16]" loc = k17;
+net "fmc_a[10]" loc = u18;
+net "fmc_a[9]" loc = u17;
+net "fmc_a[4]" loc = n15;
+net "fmc_a[17]" loc = n17;
+net "fmc_a[13]" loc = l14;
+net "fmc_a[8]" loc = n14;
+net "fmc_a[1]" loc = t17;
+net "fmc_a[18]" loc = m18;
+net "fmc_a[11]" loc = k18;
+net "fmc_a[6]" loc = m16;
+net "fmc_a[2]" loc = n18;
+net "fmc_a[12]" loc = l17;
+net "fmc_noe" loc = p16;
+net "fmc_nwe" loc = p15;
+net "fmc_ne" loc = m13;
+
+# Timing
+
+NET "fmc_clk" TNM_NET = fmc_clk;
+TIMESPEC TS_fmc_clk = PERIOD "fmc_clk" 54 MHz HIGH 50%;
+
+INST "fmc_a<0>" TNM = FMC_Axx;
+INST "fmc_a<1>" TNM = FMC_Axx;
+INST "fmc_a<2>" TNM = FMC_Axx;
+INST "fmc_a<3>" TNM = FMC_Axx;
+INST "fmc_a<4>" TNM = FMC_Axx;
+INST "fmc_a<5>" TNM = FMC_Axx;
+INST "fmc_a<6>" TNM = FMC_Axx;
+INST "fmc_a<7>" TNM = FMC_Axx;
+INST "fmc_a<8>" TNM = FMC_Axx;
+INST "fmc_a<9>" TNM = FMC_Axx;
+INST "fmc_a<10>" TNM = FMC_Axx;
+INST "fmc_a<11>" TNM = FMC_Axx;
+INST "fmc_a<12>" TNM = FMC_Axx;
+INST "fmc_a<13>" TNM = FMC_Axx;
+INST "fmc_a<14>" TNM = FMC_Axx;
+INST "fmc_a<15>" TNM = FMC_Axx;
+INST "fmc_a<16>" TNM = FMC_Axx;
+INST "fmc_a<17>" TNM = FMC_Axx;
+INST "fmc_a<18>" TNM = FMC_Axx;
+INST "fmc_a<19>" TNM = FMC_Axx;
+
+INST "fmc_d<0>" TNM = FMC_Dxx;
+INST "fmc_d<1>" TNM = FMC_Dxx;
+INST "fmc_d<2>" TNM = FMC_Dxx;
+INST "fmc_d<3>" TNM = FMC_Dxx;
+INST "fmc_d<4>" TNM = FMC_Dxx;
+INST "fmc_d<5>" TNM = FMC_Dxx;
+INST "fmc_d<6>" TNM = FMC_Dxx;
+INST "fmc_d<7>" TNM = FMC_Dxx;
+INST "fmc_d<8>" TNM = FMC_Dxx;
+INST "fmc_d<9>" TNM = FMC_Dxx;
+INST "fmc_d<10>" TNM = FMC_Dxx;
+INST "fmc_d<11>" TNM = FMC_Dxx;
+INST "fmc_d<12>" TNM = FMC_Dxx;
+INST "fmc_d<13>" TNM = FMC_Dxx;
+INST "fmc_d<14>" TNM = FMC_Dxx;
+INST "fmc_d<15>" TNM = FMC_Dxx;
+INST "fmc_d<16>" TNM = FMC_Dxx;
+INST "fmc_d<17>" TNM = FMC_Dxx;
+INST "fmc_d<18>" TNM = FMC_Dxx;
+INST "fmc_d<19>" TNM = FMC_Dxx;
+INST "fmc_d<20>" TNM = FMC_Dxx;
+INST "fmc_d<21>" TNM = FMC_Dxx;
+INST "fmc_d<22>" TNM = FMC_Dxx;
+INST "fmc_d<23>" TNM = FMC_Dxx;
+INST "fmc_d<24>" TNM = FMC_Dxx;
+INST "fmc_d<25>" TNM = FMC_Dxx;
+INST "fmc_d<26>" TNM = FMC_Dxx;
+INST "fmc_d<27>" TNM = FMC_Dxx;
+INST "fmc_d<28>" TNM = FMC_Dxx;
+INST "fmc_d<29>" TNM = FMC_Dxx;
+INST "fmc_d<30>" TNM = FMC_Dxx;
+INST "fmc_d<31>" TNM = FMC_Dxx;
+
+NET "fmc_ne" OFFSET = IN 7.25 ns BEFORE "fmc_clk" RISING;
+NET "fmc_noe" OFFSET = IN 7.75 ns BEFORE "fmc_clk" RISING;
+NET "fmc_nwe" OFFSET = IN 7.75 ns BEFORE "fmc_clk" RISING;
+
+TIMEGRP "FMC_Axx" OFFSET = IN 6.75 ns BEFORE "fmc_clk" RISING;
+TIMEGRP "FMC_Dxx" OFFSET = IN 5.75 ns VALID 18.5 ns BEFORE "fmc_clk" RISING;
+# 18.5-1.5-0.4 (period-setup requirement-2x board delay(~0.2ns/inch))
+TIMEGRP "FMC_Dxx" OFFSET = OUT 16.6 ns AFTER "fmc_clk" REFERENCE_PIN "fmc_d<0>";
