@@ -6,6 +6,7 @@ module fmc2bram_tb;
   parameter BRAM_AW = 12;
   parameter DW = 32;
   parameter BRAMS = 8;
+  parameter FMC_AW_UNUSED_BITS = FMC_AW-BRAM_AW-$clog2(BRAMS);
 
   /*AUTOREGINPUT*/
   // Beginning of automatic reg inputs (for undeclared instantiated-module inputs)
@@ -68,9 +69,9 @@ class TxType;
 endclass // TxType
 
   bit [DW-1:0] 		bram_array [BRAMS][bit [BRAM_AW-1:0]];
-
   logic [DW-1:0] 	fmc_d_int;
-
+  bit [7:0] 		bram_en_sum;
+  
   
   // Tasks
   
@@ -93,7 +94,7 @@ endclass // TxType
   task tx_read(input TxType tx);
     @(negedge fmc_clk);
     fmc_ne = 0;
-    fmc_a = {tx.bram_idx, tx.addr};
+    fmc_a = {tx.bram_idx, FMC_AW_UNUSED_BITS'(0), tx.addr};
     
     repeat(2) @(negedge fmc_clk);
     fmc_noe = 0;
@@ -115,7 +116,7 @@ endclass // TxType
     @(negedge fmc_clk);
     fmc_ne = 0;
     fmc_nwe = 0;
-    fmc_a = {tx.bram_idx, tx.addr};
+    fmc_a = {tx.bram_idx, FMC_AW_UNUSED_BITS'(0), tx.addr};
     
     repeat(2) @(negedge fmc_clk);
     for (int i=0; i<tx.len; i++) begin
@@ -135,7 +136,7 @@ endclass // TxType
 
   always #5 fmc_clk = ~fmc_clk;
 
-  always @(posedge fmc_clk) // bram model
+  always_ff @(posedge fmc_clk) // bram model
     foreach (bram_en[i])
       if (bram_en[i])
 	if (bram_we)
@@ -144,8 +145,18 @@ endclass // TxType
 	  bram_di[DW*(i+1)-1 -: DW] = bram_array[i][bram_a];
 
   assign fmc_d = (!fmc_ne && !fmc_nwe) ? fmc_d_int : 'bz;
-  
 
+  always_comb begin
+    bram_en_sum = 0;
+    foreach (bram_en[i]) bram_en_sum += bram_en[i];
+  end
+
+ 
+  // Assertions
+
+  assert property (@(posedge fmc_clk) bram_en_sum <= 1);
+
+  
   
   // Main
   
@@ -155,12 +166,12 @@ endclass // TxType
     $dumpfile("dump.vcd");
     $dumpvars;
     
-    tx = new(16);
+    tx = new(4);
     
     init();
     reset();
     
-    repeat(10) begin
+    repeat(5) begin
       tx.randomize();
       tx_write(tx);
       repeat(2) @(posedge fmc_clk);
