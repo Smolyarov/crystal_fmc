@@ -4,10 +4,13 @@ module fmc2bram
     parameter FMC_AW = 20,
     parameter BRAM_AW = 12,
     parameter DW = 32,
-    parameter BRAMS = 8
+    parameter BRAMS = 8+1, // one line for math control regs
+    parameter CTL_REGS = 6
     )
   (
    input 		  rst,
+   output reg 		  mmu_int,
+  
    input 		  fmc_clk,
    input [FMC_AW-1:0] 	  fmc_a,
    inout [DW-1:0] 	  fmc_d,
@@ -41,6 +44,7 @@ module fmc2bram
       a_cnt <= 0;
       bram_en <= 0;
       bram_we <= 0;
+      mmu_int <= 0;
     end else begin
       case (state)
 	
@@ -50,6 +54,12 @@ module fmc2bram
 	    bram_en[bram_idx] <= 1;
 	    write <= !fmc_nwe;
 	    state <= s_nop;
+
+	    mmu_int <= 0;
+	    if (bram_idx >= BRAMS)
+	      mmu_int <= 1;
+	    if (bram_idx == BRAMS-1 && fmc_a[BRAM_AW-1:0] >= CTL_REGS)
+	      mmu_int <= 1;
 	  end
 
 	s_nop: state <= write ? s_w_we : s_adr_inc;
@@ -68,11 +78,9 @@ module fmc2bram
 	    bram_we <= 0;
 	  end
 	end
-
       endcase
-    end
-    
-  end
+    end   
+  end // always @ (posedge fmc_clk)
   
 endmodule
 

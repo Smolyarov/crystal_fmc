@@ -5,7 +5,7 @@ module fmc2bram_tb;
   parameter FMC_AW = 20;
   parameter BRAM_AW = 12;
   parameter DW = 32;
-  parameter BRAMS = 8;
+  parameter BRAMS = 8+1;
   parameter FMC_AW_UNUSED_BITS = FMC_AW-BRAM_AW-$clog2(BRAMS);
 
   /*AUTOREGINPUT*/
@@ -25,6 +25,7 @@ module fmc2bram_tb;
   wire [BRAMS-1:0]	bram_en;		// From uut of fmc2bram.v
   wire [0:0]		bram_we;		// From uut of fmc2bram.v
   wire [DW-1:0]		fmc_d;			// To/From uut of fmc2bram.v
+  wire			mmu_int;		// From uut of fmc2bram.v
   // End of automatics
 
   fmc2bram
@@ -37,6 +38,7 @@ module fmc2bram_tb;
   uut
     (/*AUTOINST*/
      // Outputs
+     .mmu_int				(mmu_int),
      .bram_a				(bram_a[BRAM_AW-1:0]),
      .bram_do				(bram_do[DW-1:0]),
      .bram_en				(bram_en[BRAMS-1:0]),
@@ -62,6 +64,7 @@ class TxType;
   rand bit [DW-1:0] data[];
 
   constraint data_size {data.size() == len;}
+  constraint c_idx {bram_idx < BRAMS;}
 
   function new(input int l);
     len = l;
